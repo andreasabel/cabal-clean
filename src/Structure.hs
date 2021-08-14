@@ -35,6 +35,7 @@
 module Structure where
 
 import qualified Data.Map as Map
+import System.Console.Pretty (color, Color(Green, Red))
 import Util
 
 -- | The structure of the build directory.
@@ -44,18 +45,25 @@ newtype BuildTree = BuildTree
       Map Package
        (Map PackageVersion
          (Map Arch
-           (Map CompilerVersion FilePath)))
+           (Map MajorVersion
+              (Map MinorVersion Entry))))
   }
   deriving Show
 
--- | The build directory is a map from 'Entry' to 'FilePath'.
+-- | The build directory is a map from 'Key' to 'Entry'.
 
-data Entry = Entry
+data Key = Key
   { pkg    :: Package
   , pkgVer :: PackageVersion
   , arch   :: Arch
-  , ghcVer :: CompilerVersion
+  , ghcMaj :: MajorVersion
+  , ghcMin :: MinorVersion
   }
+
+data Entry = Entry
+  { dir      :: FilePath
+  , obsolete :: Bool
+  } deriving Show
 
 -- | We treat the architecture identifier as opaque.
 type Arch = String
@@ -66,8 +74,13 @@ type Package = String
 -- | A package version is a list of natural numbers.
 type PackageVersion  = NumericVersion
 
--- | A GHC version is a list of natural numbers.
-type CompilerVersion = NumericVersion
+-- | A GHC major version is a list of natural numbers.
+type MajorVersion = NumericVersion
+
+-- | A GHC minor version is a list of natural numbers.
+type MinorVersion = NumericVersion
+
+type CompilerVersion = (MajorVersion, MinorVersion)
 
 type NumericVersion = [Int]
 
@@ -89,7 +102,7 @@ getBuildTree root = runWriterT $ do
       let hcroot = archroot </> hc
       case parseCompilerString hc of
         Nothing -> warnIgnoring hcroot
-        Just ghcVer -> do
+        Just (major, minor) -> do
 
           -- Traverse packages
           forMM (getSubdirectories hcroot) $ \ s -> do
@@ -97,7 +110,7 @@ getBuildTree root = runWriterT $ do
             case parsePackageString s of
               Nothing -> warnIgnoring pkgdir
               Just (pkg, ver) -> do
-                return $ singleton (Entry pkg ver arch ghcVer) pkgdir
+                return $ singleton (Key pkg ver arch major minor) pkgdir
   where
   warnIgnoring dir = do
     tell [ unwords ["Ignoring", dir] ]
@@ -109,12 +122,37 @@ getSubdirectories :: MonadIO io => FilePath -> io [FilePath]
 getSubdirectories root = liftIO $ do
   filterM (doesDirectoryExist . (root </>)) =<< listDirectory root
 
+-- * Mark obsolete entries of the build tree.
+
+markObsolete :: BuildTree -> BuildTree
+markObsolete (BuildTree t) = BuildTree $
+  (flip fmap t) $ modifyDesc $ \case
+    [] -> []
+    (ver, m) : vms ->
+      (ver, flip (fmap . fmap) m $ modifyDesc $ \case
+        [] -> []
+        me : mes -> me : map (second markEntryObsolete) mes
+      ) : map (second $ fmap $ fmap $ fmap markEntryObsolete) vms
+
+  where
+  modifyDesc f = Map.fromDescList . f . Map.toDescList
+  -- mapDesc f = Map.fromDescList . map (second f) . Map.toDescList
+
+markEntryObsolete :: Entry -> Entry
+markEntryObsolete (Entry dir _) = Entry dir True
+
 -- * Printing the build tree to the terminal.
 
 -- | Print the build tree, coloring parts to keep in green, and parts to remove in red.
 
 printBuildTree :: BuildTree -> IO ()
-printBuildTree _ = return ()
+printBuildTree = foldMapEntry $ \ (Entry dir obsolete) -> do
+  (exitcode, stdout, _stderr) <- readProcessWithExitCode "du" ["-hs", dir] ""
+  let s = if exitcode == ExitSuccess then stdout else dir ++ "\n"
+  putStr $ colorize obsolete s
+  where
+  colorize True  = color Red
+  colorize False = color Green
 
 
 
@@ -122,7 +160,7 @@ printBuildTree _ = return ()
 
 instance Semigroup BuildTree where
   BuildTree t1 <> BuildTree t2 = BuildTree $
-    Map.unionWith (Map.unionWith $ Map.unionWith $ Map.union) t1 t2
+    Map.unionWith (Map.unionWith $ Map.unionWith $ Map.unionWith $ Map.union) t1 t2
 
 instance Monoid BuildTree where
   mempty  = BuildTree $ Map.empty
@@ -130,17 +168,31 @@ instance Monoid BuildTree where
 
 -- | A build tree with a single entry.
 
-singleton :: Entry -> FilePath -> BuildTree
-singleton (Entry pkg ver arch ghc) dir = BuildTree $
-  Map.singleton pkg $ Map.singleton ver $ Map.singleton arch $ Map.singleton ghc dir
+singleton :: Key -> FilePath -> BuildTree
+singleton (Key pkg ver arch major minor) dir = BuildTree $
+  Map.singleton pkg $
+  Map.singleton ver $
+  Map.singleton arch $
+  Map.singleton major $
+  Map.singleton minor $ Entry dir False
+
+mapEntry :: (Entry -> Entry) -> BuildTree -> BuildTree
+mapEntry f (BuildTree t) = BuildTree $ (fmap . fmap . fmap . fmap . fmap) f t
+
+traverseEntry :: Applicative m => (Entry -> m Entry) -> BuildTree -> m BuildTree
+traverseEntry f (BuildTree t) =
+  BuildTree <$> (traverse . traverse . traverse . traverse . traverse) f t
+
+foldMapEntry :: Monoid m => (Entry -> m) -> BuildTree -> m
+foldMapEntry f (BuildTree t) = (foldMap . foldMap . foldMap . foldMap . foldMap) f t
 
 -- * Parsing directory names
 
-parseEntry :: Arch -> CompilerString -> PackageString -> Maybe Entry
-parseEntry arch hc s = do
-  ghcVer   <- parseCompilerString hc
-  (pkg, v) <- parsePackageString s
-  return $ Entry pkg v arch ghcVer
+parseKey :: Arch -> CompilerString -> PackageString -> Maybe Key
+parseKey arch hc s = do
+  (major, minor) <- parseCompilerString hc
+  (pkg  , ver  ) <- parsePackageString s
+  return $ Key pkg ver arch major minor
 
 type CompilerString = String
 
@@ -148,7 +200,7 @@ parseCompilerString :: CompilerString -> Maybe CompilerVersion
 parseCompilerString s = do
   n <- findIndex (== '-') s
   case splitAt n s of
-    ("ghc", _:v) -> parseVersionString v
+    ("ghc", _:v) -> splitAt 2 <$> parseVersionString v
     _ -> Nothing
 
 type PackageString = String

@@ -21,7 +21,7 @@ import System.FilePath
 import System.IO        (hPutStr, stderr)
 import System.Exit      (exitFailure)
 
-import Structure        (getBuildTree)
+import Structure        (getBuildTree, markObsolete, printBuildTree)
 import Util
 import Version
 
@@ -43,7 +43,11 @@ main = do
   unlessM (doesDirectoryExist buildDir) $ do
     die $ unwords [ "No such directory:", buildDir ]
 
-  print =<< getBuildTree buildDir
+  (tree0, warns) <- getBuildTree buildDir
+  forM_ warns $ putStrLn . ("warning: " ++)
+
+  let tree = markObsolete tree0
+  printBuildTree tree
 
   -- Done.
 

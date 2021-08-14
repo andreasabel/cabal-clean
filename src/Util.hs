@@ -16,8 +16,9 @@ import Data.Map       as X (Map)
 import Data.Version   as X (Version(..))
 
 import System.Directory as X (doesDirectoryExist, listDirectory)
-import System.Exit      as X (die)
+import System.Exit      as X (die, ExitCode(..))
 import System.FilePath  as X ((</>))
+import System.Process   as X (readProcessWithExitCode)
 
 import Text.Read      as X (readMaybe)
 

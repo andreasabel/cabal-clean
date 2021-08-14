@@ -60,6 +60,7 @@ executable cabal-clean
     , optparse-applicative
     -- , optparse-applicative >= 0.13 && < 0.16
     , pretty-terminal
+    , process
     , split
 
   hs-source-dirs:      src

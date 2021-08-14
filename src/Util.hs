@@ -2,7 +2,7 @@
 
 module Util (module Util, module X) where
 
-import Control.Monad  as X ((<=<), filterM, forM, guard, unless)
+import Control.Monad  as X ((<=<), filterM, forM, forM_, guard, unless, when)
 import Control.Monad.IO.Class as X (MonadIO, liftIO)
 import Control.Monad.Writer as X (WriterT, runWriterT, tell)
 
@@ -15,7 +15,8 @@ import Data.Maybe     as X
 import Data.Map       as X (Map)
 import Data.Version   as X (Version(..))
 
-import System.Directory as X (doesDirectoryExist, listDirectory)
+import System.Console.Pretty as X (color, Color(Green, Red, White), style, Style(ColoredNormal, Faint, Italic))
+import System.Directory as X (doesDirectoryExist, listDirectory, removeDirectoryRecursive)
 import System.Exit      as X (die, ExitCode(..))
 import System.FilePath  as X ((</>))
 import System.Process   as X (readProcessWithExitCode)

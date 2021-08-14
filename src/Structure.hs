@@ -35,7 +35,6 @@
 module Structure where
 
 import qualified Data.Map as Map
-import System.Console.Pretty (color, Color(Green, Red))
 import Util
 
 -- | The structure of the build directory.
@@ -140,6 +139,13 @@ markObsolete (BuildTree t) = BuildTree $
 
 markEntryObsolete :: Entry -> Entry
 markEntryObsolete (Entry dir _) = Entry dir True
+
+-- | Remove directories marked as obsolete.
+
+removeObsolete :: BuildTree -> IO ()
+removeObsolete = foldMapEntry $ \ (Entry dir obsolete) -> do
+  when obsolete $ do
+    removeDirectoryRecursive dir
 
 -- * Printing the build tree to the terminal.
 

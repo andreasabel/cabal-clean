@@ -2,26 +2,21 @@
 --
 -- Remove build artefacts of outdated versions from `dist-newstyle`.
 
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Main where
 
-import Control.Monad
-import qualified Data.List as List
-import Data.Semigroup
-
 import Options.Applicative
-import Options.Applicative.Help.Pretty (vcat, text)
+  ( execParser, footerDoc, header, help, helper, info, infoOption
+  , long, short, switch )
+import Options.Applicative.Help.Pretty
+  ( vcat, text )
 
-import System.Directory (doesFileExist, doesDirectoryExist, createDirectoryIfMissing)
-import System.FilePath
-  (splitExtension, addExtension, takeFileName, takeDirectory, hasTrailingPathSeparator, (</>))
-import System.IO        (hPutStr, stderr)
-import System.Exit      (exitFailure)
+import System.IO
+  ( hPutStr, hPutStrLn, stderr )
 
-import Structure        (getBuildTree, markObsolete, printBuildTree)
+import Structure
+  ( Entry(..), foldMapEntry, getBuildTree, markObsolete, printBuildTree )
 import Util
 import Version
 
@@ -40,6 +35,7 @@ main = do
 
   -- Get build tree.
 
+  chatLn opts $ unwords [ "Reading", buildDir, "..." ]
   unlessM (doesDirectoryExist buildDir) $ do
     die $ unwords [ "No such directory:", buildDir ]
 
@@ -49,9 +45,18 @@ main = do
   let tree = markObsolete tree0
   printBuildTree tree
 
+  -- Remove obsolete directories
+  when optDelete $ do
+    chatLn opts $ unwords [ "Removing obsolete directories..." ]
+    flip foldMapEntry tree $ \ (Entry dir obsolete) -> do
+      if obsolete then do
+        chatLn opts $ unwords [ "Removing", dir ]
+        removeDirectoryRecursive dir
+      else chatLn opts $ unwords [ "Keeping", dir ]
+
   -- Done.
 
-  chat opts $ unwords [ self, "terminated successfully.\n" ]
+  chatLn opts $ unwords [ self, "terminated successfully." ]
 
 -- * Option parsing and handling
 
@@ -104,14 +109,14 @@ options =
       ]
     ]
 
-data DirOrFile = Dir FilePath | File FilePath
-
-dirOrFile :: FilePath -> IO DirOrFile
-dirOrFile path
-  | hasTrailingPathSeparator path = return $ Dir path
-  | otherwise = doesDirectoryExist path <&> \case
-      True  -> Dir path
-      False -> File path
+-- * Verbosity functionality.
 
 chat :: Options -> String -> IO ()
-chat o msg = when (optVerbose o) $ hPutStr stderr msg
+chat = chatGen $ hPutStr stderr
+
+chatLn :: Options -> String -> IO ()
+chatLn = chatGen $ hPutStrLn stderr
+
+chatGen :: (String -> IO ()) -> Options -> String -> IO ()
+chatGen prt o msg = when (optVerbose o) $
+  prt $ style Faint $ unwords ["info:", msg]

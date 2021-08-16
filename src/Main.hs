@@ -153,7 +153,7 @@ options = do
     ]
   footer = Just $ vcat $ map (text . unwords)
     [ [ unwords ["Without option --delete,", self, "does not actually clean out anything,"]
-      , "just shows ticked ('[X]') and in red what would be removed and unticked ('[ ]') and in green what is kept."
+      , "just shows prefixed with '---' and in red what would be removed and prefixed with '+++' and in green what is kept."
       ]
     , [ "" ]
     , [ "Warning: there is check whether the to-be-deleted contents are actually garbage."

@@ -166,9 +166,8 @@ printBuildTree opts = foldMapEntry $ \ (Entry dir obsolete) -> do
   let s = if exitcode == ExitSuccess then stdout else dir ++ "\n"
   putStr $ colorize obsolete s
   where
-  colorize True  = ("[X]\t" ++) . colorOpt opts Red   -- . (++ "\t[DEL]")
-  colorize False = ("[ ]\t" ++) . colorOpt opts Green
-
+  colorize True  = colorOpt opts Red   . ("---\t" ++)
+  colorize False = colorOpt opts Green . ("+++\t" ++)
 
 -- * Mathematics of the build directory structure.
 

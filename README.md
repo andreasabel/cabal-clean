@@ -22,15 +22,6 @@ For the impatient
     cabal-clean
 
 This lists the build artifacts under `dist-newstyle/build`.
-
-    [X]	191M	dist-newstyle/build/x86_64-osx/ghc-7.10.3/$MY_PROJECT-2.9.2
-    [X]	 72M	dist-newstyle/build/x86_64-osx/ghc-8.10.4/$MY_PROJECT-2.9.2
-    [X]	162M	dist-newstyle/build/x86_64-osx/ghc-9.0.1/$MY_PROJECT-2.9.2
-    [ ]	135M	dist-newstyle/build/x86_64-osx/ghc-7.10.3/$MY_PROJECT-2.9.3
-    [X]	 70M	dist-newstyle/build/x86_64-osx/ghc-8.10.4/$MY_PROJECT-2.9.3
-    [ ]	145M	dist-newstyle/build/x86_64-osx/ghc-8.10.5/$MY_PROJECT-2.9.3
-    [ ]	159M	dist-newstyle/build/x86_64-osx/ghc-9.0.1/$MY_PROJECT-2.9.3
-
 ```diff
 ---	191M	dist-newstyle/build/x86_64-osx/ghc-7.10.3/$MY_PROJECT-2.9.2
 ---	 72M	dist-newstyle/build/x86_64-osx/ghc-8.10.4/$MY_PROJECT-2.9.2
@@ -40,7 +31,7 @@ This lists the build artifacts under `dist-newstyle/build`.
 +++	145M	dist-newstyle/build/x86_64-osx/ghc-8.10.5/$MY_PROJECT-2.9.3
 +++	159M	dist-newstyle/build/x86_64-osx/ghc-9.0.1/$MY_PROJECT-2.9.3
 ```
-The superseded ones, printed in red and prefixed by a ticked box (`[X]`),
+The superseded ones, printed in red and prefixed by dashes (`---`),
 can then be removed by:
 
     cabal-clean --delete

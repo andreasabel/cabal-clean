@@ -13,7 +13,9 @@ For the impatient
     cd $MY_PROJECT
     cabal-clean
 
-This lists the build artifacts under `dist-newstyle/build`.  The superseded ones, printed in red and prefixed by a ticked box (`[X]`), can then be removed by:
+This lists the build artifacts under `dist-newstyle/build`.
+The superseded ones, printed in red and prefixed by a ticked box (`[X]`),
+can then be removed by:
 
     cabal-clean --delete
 
@@ -71,7 +73,8 @@ Functionality
 Examples
 --------
 
-List build artifacts of current project, marking superseded ones that can be deleded:
+List build artifacts of current project,
+marking superseded ones that can be deleded:
 
     cabal-clean
 

@@ -157,7 +157,7 @@ printBuildTree = foldMapEntry $ \ (Entry dir obsolete) -> do
   let s = if exitcode == ExitSuccess then stdout else dir ++ "\n"
   putStr $ colorize obsolete s
   where
-  colorize True  = color Red
+  colorize True  = color Red   -- . (++ " [DELETE]") -- wrong line break
   colorize False = color Green
 
 

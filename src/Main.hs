@@ -7,7 +7,7 @@
 module Main where
 
 import Options.Applicative
-  ( execParser, footerDoc, header, help, helper, info, infoOption
+  ( execParser, footerDoc, headerDoc, help, helper, hidden, info, infoOption
   , long, short, switch )
 import Options.Applicative.Help.Pretty
   ( vcat, text )
@@ -22,6 +22,9 @@ import Version
 
 self :: String
 self = "cabal-clean"
+
+homepage :: String
+homepage = concat [ "https://github.com/andreasabel/", self ]
 
 buildDir :: FilePath
 buildDir = "dist-newstyle" </> "build"
@@ -61,36 +64,34 @@ main = do
 -- * Option parsing and handling
 
 data Options = Options
-  { optVerbose    :: Bool
-  , optDelete     :: Bool
+  { optDelete     :: Bool
+  , optVerbose    :: Bool
   } deriving Show
 
 options :: IO Options
-options =
-  execParser $
-    info (helper <*> versionOption <*> numericVersionOption <*> programOptions)
-         (header "Clean outdated build artefacts from directory `dist-newstyle`."
-          <> footerDoc (Just foot))
-
+options = execParser $ info parser infoMod
   where
+  parser = programOptions <**> (versionOption <*> numericVersionOption <*> helper)
+  infoMod = headerDoc header <> footerDoc footer
+
   versionOption =
-    infoOption (unwords versionWords)
+    infoOption versionText
       $  long "version"
       <> help "Show version info."
-  versionWords = concat
-    [ [ self, "version", version ]
-    ]
+      <> hidden
+  versionText = unwords [ self, "version", version ]
 
   numericVersionOption =
     infoOption version
       $  long "numeric-version"
       <> help "Show just version number."
+      <> hidden
       -- Newline at the end:
       -- <> helpDoc (Just $ text "Show just version number." <$$> text "")
 
   programOptions = Options
-    <$> oVerbose
-    <*> oDelete
+    <$> oDelete
+    <*> oVerbose
 
   oDelete =
     switch
@@ -103,7 +104,18 @@ options =
       <> short 'v'
       <> help "Comment on what is happening."
 
-  foot = vcat $ map text
+  -- Note: @header@ does not respect line breaks, so we need @headerDoc@.
+  header = Just $ vcat $ map text
+    [ unwords [ versionText, homepage ]
+    , ""
+    , "Clean superseded build artefacts from directory `dist-newstyle`."
+    , unwords
+      [ "A package build is considered superseded if there is a local build"
+      , "of either a newer version of the package or with a newer minor version"
+      , "of the Haskell compiler."
+      ]
+    ]
+  footer = Just $ vcat $ map text
     [ unwords ["Without option --delete,", self, "does not actually clean out anything,"]
     , "just shows in red what would be removed and in green what is kept."
     , "You need a terminal with ANSI colors to read this properly."

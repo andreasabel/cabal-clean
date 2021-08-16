@@ -2,6 +2,7 @@
 
 module Util (module Util, module X) where
 
+import Control.Applicative    as X ((<**>))
 import Control.Monad          as X ((<=<), filterM, forM, forM_, guard, unless, when)
 import Control.Monad.IO.Class as X (MonadIO, liftIO)
 import Control.Monad.Writer   as X (WriterT, runWriterT, tell)

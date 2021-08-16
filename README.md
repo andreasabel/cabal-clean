@@ -1,5 +1,13 @@
-cabal-clean : Remove outdated compilation artefacts from `dist-newstyle`
-========================================================================
+[![Hackage version](https://img.shields.io/hackage/v/cabal-clean.svg?label=Hackage&color=informational)](http://hackage.haskell.org/package/cabal-clean)
+[![cabal-clean on Stackage Nightly](https://stackage.org/package/cabal-clean/badge/nightly)](https://stackage.org/nightly/package/cabal-clean)
+[![Stackage LTS version](https://www.stackage.org/package/cabal-clean/badge/lts?label=Stackage)](https://www.stackage.org/package/cabal-clean)
+[![Cabal build](https://github.com/andreasabel/cabal-clean/workflows/Haskell-CI/badge.svg)](https://github.com/andreasabel/cabal-clean/actions)
+
+cabal-clean : Remove superseded artefacts of `cabal v2-build`
+=============================================================
+
+Removes compilation artefacts in `dist-newstyle/build` from older
+versions of the package or superseded minor versions of GHC.
 
 For the impatient
 -----------------
@@ -14,6 +22,15 @@ For the impatient
     cabal-clean
 
 This lists the build artifacts under `dist-newstyle/build`.
+
+    [X]	191M	dist-newstyle/build/x86_64-osx/ghc-7.10.3/$MY_PROJECT-2.9.2
+    [X]	 72M	dist-newstyle/build/x86_64-osx/ghc-8.10.4/$MY_PROJECT-2.9.2
+    [X]	162M	dist-newstyle/build/x86_64-osx/ghc-9.0.1/$MY_PROJECT-2.9.2
+    [ ]	135M	dist-newstyle/build/x86_64-osx/ghc-7.10.3/$MY_PROJECT-2.9.3
+    [X]	 70M	dist-newstyle/build/x86_64-osx/ghc-8.10.4/$MY_PROJECT-2.9.3
+    [ ]	145M	dist-newstyle/build/x86_64-osx/ghc-8.10.5/$MY_PROJECT-2.9.3
+    [ ]	159M	dist-newstyle/build/x86_64-osx/ghc-9.0.1/$MY_PROJECT-2.9.3
+
 The superseded ones, printed in red and prefixed by a ticked box (`[X]`),
 can then be removed by:
 
@@ -93,3 +110,11 @@ Delete superseded builds in many projects:
 Get help:
 
     cabal-clean --help
+
+Related
+-------
+
+`cabal v2-clean` (as of 2021-08-16)
+
+  - Removes *all* build artefacts.
+  - Does not have a `--dry-run` preview.

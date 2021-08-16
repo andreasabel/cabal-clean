@@ -11,6 +11,8 @@ License.hs : ../LICENSE Makefile
 {-# LANGUAGE QuasiQuotes #-}\n\n\
 module License where\n\n\
 import Data.String.QQ\n\n\
+copyright :: String\n\
+copyright = head (lines license)\n\n\
 license :: String\n\
 license = [s|" > $@
 	cat $< >> $@

@@ -10,7 +10,7 @@ import Control.Monad.Writer   as X (WriterT, runWriterT, tell)
 import Data.Bifunctor         as X
 import Data.Char              as X (isSpace)
 import Data.Function          as X (on)
-import Data.List              as X (findIndex, findIndices)
+import Data.List              as X (findIndex, findIndices, intercalate)
 import Data.List.Split        as X (splitWhen)
 import Data.Maybe             as X
 import Data.Map               as X (Map)

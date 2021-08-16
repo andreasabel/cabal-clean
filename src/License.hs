@@ -6,9 +6,12 @@ module License where
 
 import Data.String.QQ
 
+copyright :: String
+copyright = head (lines license)
+
 license :: String
 license = [s|
-Copyright 2021 Andreas Abel
+Copyright (C) 2021 Andreas Abel
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

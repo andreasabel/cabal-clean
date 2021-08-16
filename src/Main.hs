@@ -20,7 +20,7 @@ import System.IO
   ( hPutStr, hPutStrLn, stderr )
 
 import License
-  ( license )
+  ( copyright, license )
 import Options
 import Structure
   ( Entry(..), foldMapEntry, getBuildTree, markObsolete, printBuildTree )
@@ -84,11 +84,17 @@ options = do
   infoMod = headerDoc header <> footerDoc footer
 
   versionOption =
-    infoOption versionText
+    infoOption versionLong
       $  long "version"
+      <> short 'V'
       <> help "Show version info."
       <> hidden
   versionText = unwords [ self, "version", version ]
+  versionLong = intercalate "\n" $
+    [ versionText
+    , copyright
+    , "This is free software under the BSD-3-clause license."
+    ]
 
   numericVersionOption =
     infoOption version
@@ -101,7 +107,7 @@ options = do
   licenseOption =
     infoOption license
       $  long "license"
-      <> long "licence"
+      -- <> long "licence"
       <> help "Show the license text."
       <> hidden
 
@@ -115,6 +121,8 @@ options = do
   oDelete =
     switch
       $  long "delete"
+      <> long "remove"
+      -- <> short 'D'
       <> help "Actually clean up on disk."
 
   oVerbose =

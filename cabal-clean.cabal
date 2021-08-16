@@ -10,7 +10,7 @@ description:         Simple command line tool to remove cabal build artefacts
 
 homepage:            https://github.com/andreasabel/cabal-clean
 bug-reports:         https://github.com/andreasabel/cabal-clean/issues
-license:             PublicDomain
+license:             BSD3
 license-file:        LICENSE
 
 author:              Andreas Abel
@@ -45,6 +45,7 @@ executable cabal-clean
   main-is:             Main.hs
 
   other-modules:
+    License
     Options
     Structure
     Util
@@ -66,6 +67,7 @@ executable cabal-clean
     , pretty-terminal
     , process
     , split
+    , string-qq
 
   hs-source-dirs:      src
   default-language:    Haskell2010

@@ -19,6 +19,8 @@ import System.Console.Pretty
 import System.IO
   ( hPutStr, hPutStrLn, stderr )
 
+import License
+  ( license )
 import Options
 import Structure
   ( Entry(..), foldMapEntry, getBuildTree, markObsolete, printBuildTree )
@@ -77,7 +79,8 @@ options = do
     True  -> return opts
     False -> return opts{ optNoColors = True }
   where
-  parser = programOptions <**> (versionOption <*> numericVersionOption <*> helper)
+  parser = programOptions <**>
+    (versionOption <*> numericVersionOption <*> licenseOption <*> helper)
   infoMod = headerDoc header <> footerDoc footer
 
   versionOption =
@@ -94,6 +97,13 @@ options = do
       <> hidden
       -- Newline at the end:
       -- <> helpDoc (Just $ text "Show just version number." <$$> text "")
+
+  licenseOption =
+    infoOption license
+      $  long "license"
+      <> long "licence"
+      <> help "Show the license text."
+      <> hidden
 
   -- Obs: match the order with Options.Options!
   programOptions = Options

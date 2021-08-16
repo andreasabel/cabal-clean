@@ -1,6 +1,22 @@
 cabal-clean : Remove outdated compilation artefacts from `dist-newstyle`
 ========================================================================
 
+For the impatient
+-----------------
+
+### Installation
+
+    cabal install cabal-clean
+
+### Run
+
+    cd $MY_PROJECT
+    cabal-clean
+
+This lists the build artifacts under `dist-newstyle/build`.  The superseded ones, printed in red and prefixed by a ticked box (`[X]`), can then be removed by:
+
+    cabal-clean --delete
+
 Rationale
 ---------
 
@@ -51,3 +67,26 @@ Functionality
   (I could not find a Haskell library that gets the disk usage OS-agnostically.)
 
 - With option `--delete` actually remove the respective folders.
+
+Examples
+--------
+
+List build artifacts of current project, marking superseded ones that can be deleded:
+
+    cabal-clean
+
+Actually delete superseded builds:
+
+    cabal-clean --delete
+
+Delete superseded builds without changing to directory:
+
+    cabal-clean --delete path/to/my/project/dist-newstyle
+
+Delete superseded builds in many projects:
+
+    find . -name "dist-newstyle" -exec cabal-clean --delete {} \;
+
+Get help:
+
+    cabal-clean --help

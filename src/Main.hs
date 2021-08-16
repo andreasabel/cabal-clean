@@ -141,13 +141,14 @@ options = do
       , "of the Haskell compiler."
       ]
     ]
-  footer = Just $ vcat $ map text
-    [ unwords ["Without option --delete,", self, "does not actually clean out anything,"]
-    , "just shows in red what would be removed and in green what is kept."
-    , "You need a terminal with ANSI colors to read this properly."
-    , ""
-    , "Warning: there is check whether the to-be-deleted contents are actually garbage."
-    , "(E.g., there could be symlinks to executables stored there.)"
+  footer = Just $ vcat $ map (text . unwords)
+    [ [ unwords ["Without option --delete,", self, "does not actually clean out anything,"]
+      , "just shows ticked ('[X]') and in red what would be removed and unticked ('[ ]') and in green what is kept."
+      ]
+    , [ "" ]
+    , [ "Warning: there is check whether the to-be-deleted contents are actually garbage."
+      , "(E.g., there could be symlinks to executables stored there.)"
+      ]
     ]
 
 -- * Verbosity functionality.

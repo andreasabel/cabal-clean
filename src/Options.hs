@@ -5,11 +5,13 @@ import System.Console.Pretty  as X
   ( Color(Green, Red, White)
   , Style(ColoredNormal, Faint, Italic)
   )
+import System.FilePath (FilePath)
 
 data Options = Options
   { optDelete     :: Bool
   , optNoColors   :: Bool
   , optVerbose    :: Bool
+  , optRoot       :: FilePath
   } deriving Show
 
 -- | Apply ANSI style if coloring is enabled in 'Options'.

@@ -7,8 +7,10 @@
 module Main where
 
 import Options.Applicative
-  ( execParser, footerDoc, headerDoc, help, helper, hidden, info, infoOption
-  , long, short, switch )
+  ( Parser
+  , action, execParser, footerDoc, headerDoc, help, helper, hidden
+  , info, infoOption, long, metavar, short, strArgument, switch, value
+  )
 import Options.Applicative.Help.Pretty
   ( vcat, text )
 
@@ -29,8 +31,8 @@ self = "cabal-clean"
 homepage :: String
 homepage = concat [ "https://github.com/andreasabel/", self ]
 
-buildDir :: FilePath
-buildDir = "dist-newstyle" </> "build"
+defaultRoot :: FilePath
+defaultRoot = "dist-newstyle"
 
 main :: IO ()
 main = do
@@ -39,6 +41,7 @@ main = do
 
   opts@Options{..} <- options
   -- print opts
+  let buildDir = optRoot </> "build"
 
   -- Get build tree.
 
@@ -97,6 +100,7 @@ options = do
     <$> oDelete
     <*> oNoColors
     <*> oVerbose
+    <*> oRoot
 
   oDelete =
     switch
@@ -114,11 +118,23 @@ options = do
       $  long "no-colors"
       <> help "Disable colorized output.  Automatic if terminal does not support colors."
 
+  oRoot :: Parser FilePath
+  oRoot = do
+    strArgument
+      $  metavar "ROOT"
+      <> value defaultRoot
+      <> action "directory"
+      <> help (concat ["The root of the build tree. Default: ", show defaultRoot, "."])
+
   -- Note: @header@ does not respect line breaks, so we need @headerDoc@.
   header = Just $ vcat $ map text
     [ unwords [ versionText, homepage ]
     , ""
-    , "Clean superseded build artefacts from directory `dist-newstyle`."
+    , concat
+      [ "Clean superseded build artefacts from directory ROOT (typically "
+      , show defaultRoot
+      , ")."
+      ]
     , unwords
       [ "A package build is considered superseded if there is a local build"
       , "of either a newer version of the package or with a newer minor version"

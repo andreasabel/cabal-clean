@@ -30,7 +30,8 @@
 -- * Level 1: package
 -- * Level 2: package version
 -- * Level 3: architecture
--- * Level 4: compiler version
+-- * Level 4: major compiler version
+-- * Level 5: minor compiler version
 
 module Structure where
 
@@ -87,7 +88,10 @@ type NumericVersion = [Int]
 
 type Warnings = [String]
 
-type M = WriterT Warnings IO
+-- | Load the build tree from e.g. @dist-newstyle/build@.
+--
+-- Generate warning for subdirectories we cannot parse,
+-- but ignore them otherwise.
 
 getBuildTree :: FilePath -> IO (BuildTree, Warnings)
 getBuildTree root = runWriterT $ do
@@ -123,9 +127,12 @@ getSubdirectories root = liftIO $ do
 
 -- * Mark obsolete entries of the build tree.
 
+-- | Mark entries that are superseded by either a new package version
+-- or a new compiler minor version.
+
 markObsolete :: BuildTree -> BuildTree
 markObsolete (BuildTree t) = BuildTree $
-  (flip fmap t) $ modifyDesc $ \case
+  flip fmap t $ modifyDesc $ \case
     [] -> []
     (ver, m) : vms ->
       (ver, flip (fmap . fmap) m $ modifyDesc $ \case
@@ -161,8 +168,7 @@ printBuildTree = foldMapEntry $ \ (Entry dir obsolete) -> do
   colorize False = color Green
 
 
-
--- * Managing the build directory structure.
+-- * Mathematics of the build directory structure.
 
 instance Semigroup BuildTree where
   BuildTree t1 <> BuildTree t2 = BuildTree $
@@ -182,12 +188,18 @@ singleton (Key pkg ver arch major minor) dir = BuildTree $
   Map.singleton major $
   Map.singleton minor $ Entry dir False
 
+-- | Modify all entries of a build tree.
+
 mapEntry :: (Entry -> Entry) -> BuildTree -> BuildTree
 mapEntry f (BuildTree t) = BuildTree $ (fmap . fmap . fmap . fmap . fmap) f t
+
+-- | Modify all entries of a build tree, accumulating effects left-to-right.
 
 traverseEntry :: Applicative m => (Entry -> m Entry) -> BuildTree -> m BuildTree
 traverseEntry f (BuildTree t) =
   BuildTree <$> (traverse . traverse . traverse . traverse . traverse) f t
+
+-- | Reduce build tree.
 
 foldMapEntry :: Monoid m => (Entry -> m) -> BuildTree -> m
 foldMapEntry f (BuildTree t) = (foldMap . foldMap . foldMap . foldMap . foldMap) f t

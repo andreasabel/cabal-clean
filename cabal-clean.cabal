@@ -45,6 +45,7 @@ executable cabal-clean
   main-is:             Main.hs
 
   other-modules:
+    Options
     Structure
     Util
     Version

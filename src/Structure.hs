@@ -38,6 +38,8 @@ module Structure where
 import qualified Data.Map as Map
 import Util
 
+import Options
+
 -- | The structure of the build directory.
 
 newtype BuildTree = BuildTree
@@ -158,14 +160,14 @@ removeObsolete = foldMapEntry $ \ (Entry dir obsolete) -> do
 
 -- | Print the build tree, coloring parts to keep in green, and parts to remove in red.
 
-printBuildTree :: BuildTree -> IO ()
-printBuildTree = foldMapEntry $ \ (Entry dir obsolete) -> do
+printBuildTree :: Options -> BuildTree -> IO ()
+printBuildTree opts = foldMapEntry $ \ (Entry dir obsolete) -> do
   (exitcode, stdout, _stderr) <- readProcessWithExitCode "du" ["-hs", dir] ""
   let s = if exitcode == ExitSuccess then stdout else dir ++ "\n"
   putStr $ colorize obsolete s
   where
-  colorize True  = color Red   -- . (++ " [DELETE]") -- wrong line break
-  colorize False = color Green
+  colorize True  = ("[X]\t" ++) . colorOpt opts Red   -- . (++ "\t[DEL]")
+  colorize False = ("[ ]\t" ++) . colorOpt opts Green
 
 
 -- * Mathematics of the build directory structure.

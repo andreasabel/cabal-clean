@@ -17,7 +17,6 @@ import Data.Map               as X (Map)
 import Data.Semigroup         as X (Semigroup(..))
 import Data.Version           as X (Version(..))
 
-import System.Console.Pretty  as X (color, Color(Green, Red, White), style, Style(ColoredNormal, Faint, Italic))
 import System.Directory       as X (doesDirectoryExist, listDirectory, removeDirectoryRecursive)
 import System.Exit            as X (die, ExitCode(..))
 import System.FilePath        as X ((</>))

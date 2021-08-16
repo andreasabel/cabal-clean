@@ -12,9 +12,12 @@ import Options.Applicative
 import Options.Applicative.Help.Pretty
   ( vcat, text )
 
+import System.Console.Pretty
+  ( supportsPretty )
 import System.IO
   ( hPutStr, hPutStrLn, stderr )
 
+import Options
 import Structure
   ( Entry(..), foldMapEntry, getBuildTree, markObsolete, printBuildTree )
 import Util
@@ -35,6 +38,7 @@ main = do
   -- Parse options.
 
   opts@Options{..} <- options
+  -- print opts
 
   -- Get build tree.
 
@@ -46,7 +50,7 @@ main = do
   forM_ warns $ putStrLn . ("warning: " ++)
 
   let tree = markObsolete tree0
-  printBuildTree tree
+  printBuildTree opts tree
 
   -- Remove obsolete directories
   when optDelete $ do
@@ -63,13 +67,12 @@ main = do
 
 -- * Option parsing and handling
 
-data Options = Options
-  { optDelete     :: Bool
-  , optVerbose    :: Bool
-  } deriving Show
-
 options :: IO Options
-options = execParser $ info parser infoMod
+options = do
+  opts <- execParser $ info parser infoMod
+  supportsPretty >>= \case
+    True  -> return opts
+    False -> return opts{ optNoColors = True }
   where
   parser = programOptions <**> (versionOption <*> numericVersionOption <*> helper)
   infoMod = headerDoc header <> footerDoc footer
@@ -89,8 +92,10 @@ options = execParser $ info parser infoMod
       -- Newline at the end:
       -- <> helpDoc (Just $ text "Show just version number." <$$> text "")
 
+  -- Obs: match the order with Options.Options!
   programOptions = Options
     <$> oDelete
+    <*> oNoColors
     <*> oVerbose
 
   oDelete =
@@ -103,6 +108,11 @@ options = execParser $ info parser infoMod
       $  long "verbose"
       <> short 'v'
       <> help "Comment on what is happening."
+
+  oNoColors =
+    switch
+      $  long "no-colors"
+      <> help "Disable colorized output.  Automatic if terminal does not support colors."
 
   -- Note: @header@ does not respect line breaks, so we need @headerDoc@.
   header = Just $ vcat $ map text
@@ -134,4 +144,4 @@ chatLn = chatGen $ hPutStrLn stderr
 
 chatGen :: (String -> IO ()) -> Options -> String -> IO ()
 chatGen prt o msg = when (optVerbose o) $
-  prt $ style Faint $ unwords ["info:", msg]
+  prt $ styleOpt o Faint $ unwords ["info:", msg]

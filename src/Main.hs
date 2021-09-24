@@ -6,6 +6,9 @@
 
 module Main where
 
+import Data.Monoid
+  ( Sum(..) )
+
 import Options.Applicative
   ( Parser
   , action, execParser, footerDoc, headerDoc, help, helper, hidden
@@ -57,9 +60,16 @@ main = do
   let tree = markObsolete tree0
   printBuildTree opts tree
 
+  -- Count obsolete directories
+  let nObs :: Integer
+      nObs = getSum $ foldMapEntry ((\ x -> if x then Sum 1 else Sum 0) . obsolete) tree
+
+  if nObs <= 0 then putStrLn ("Nothing to clean!")
+  else if not optDelete then putStrLn $ unwords
+    [ show nObs, "directories can be removed (supply option --remove)." ]
   -- Remove obsolete directories
-  when optDelete $ do
-    chatLn opts $ unwords [ "Removing obsolete directories..." ]
+  else do
+    putStrLn $ unwords [ "Removing", show nObs, "obsolete directories..." ]
     flip foldMapEntry tree $ \ (Entry dir obsolete) -> do
       if obsolete then do
         chatLn opts $ unwords [ "Removing", dir ]

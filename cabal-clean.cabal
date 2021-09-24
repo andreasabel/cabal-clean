@@ -1,7 +1,7 @@
 cabal-version:       >=1.10
 
 name:                cabal-clean
-version:             0.1.20210815
+version:             0.1.20210924
 synopsis:            Remove outdated cabal build artefacts from `dist-newstyle`.
 
 description:         Simple command line tool to remove cabal build artefacts
@@ -40,7 +40,7 @@ source-repository head
 source-repository this
   type:     git
   location: git://github.com/andreasabel/cabal-clean.git
-  tag:      v0.1.20210815
+  tag:      v0.1.20210924
 
 executable cabal-clean
   main-is:             Main.hs

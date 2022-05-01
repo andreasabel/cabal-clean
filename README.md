@@ -91,7 +91,7 @@ Examples
 --------
 
 List build artifacts of current project,
-marking superseded ones that can be deleded:
+marking superseded ones that can be deleted:
 
     cabal-clean
 

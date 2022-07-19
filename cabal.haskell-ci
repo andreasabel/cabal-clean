@@ -1,3 +1,5 @@
+branches: master ci*
+
 installed: +all -binary -containers
 
 -- Redundant for RCs?  (Does not have any effect.)

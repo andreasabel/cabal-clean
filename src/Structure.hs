@@ -39,6 +39,7 @@ import qualified Data.Map as Map
 import Util
 
 import Options
+import Types
 
 -- | The structure of the build directory.
 
@@ -66,25 +67,6 @@ data Entry = Entry
   { dir      :: FilePath
   , obsolete :: Bool
   } deriving Show
-
--- | We treat the architecture identifier as opaque.
-type Arch = String
-
--- | A package is given by its name.
-type Package = String
-
--- | A package version is a list of natural numbers.
-type PackageVersion  = NumericVersion
-
--- | A GHC major version is a list of natural numbers.
-type MajorVersion = NumericVersion
-
--- | A GHC minor version is a list of natural numbers.
-type MinorVersion = NumericVersion
-
-type CompilerVersion = (MajorVersion, MinorVersion)
-
-type NumericVersion = [Int]
 
 -- * Loading the build tree from disc.
 
@@ -208,33 +190,9 @@ traverseEntry f (BuildTree t) =
 foldMapEntry :: Monoid m => (Entry -> m) -> BuildTree -> m
 foldMapEntry f (BuildTree t) = (foldMap . foldMap . foldMap . foldMap . foldMap) f t
 
--- * Parsing directory names
-
--- UNUSED
-parseKey :: Arch -> CompilerString -> PackageString -> Maybe Key
-parseKey arch hc s = do
-  (major, minor) <- parseCompilerString hc
-  (pkg  , ver  ) <- parsePackageString s
-  return $ Key pkg ver arch major minor
-
-type CompilerString = String
-
-parseCompilerString :: CompilerString -> Maybe CompilerVersion
-parseCompilerString s = do
-  n <- findIndex (== '-') s
-  case splitAt n s of
-    ("ghc", _:v) -> splitAt 2 <$> parseVersionString v
-    _ -> Nothing
-
-type PackageString = String
-
-parsePackageString :: PackageString -> Maybe (Package, PackageVersion)
-parsePackageString s = do
-  n <- findIndexEnd (== '-') s
-  let (p, _:v) = splitAt n s
-  (p,) <$> parseVersionString v
-
-type VersionString = String
-
-parseVersionString :: VersionString -> Maybe NumericVersion
-parseVersionString = mapM readMaybe . splitWhen (== '.')
+-- -- UNUSED
+-- parseKey :: Arch -> CompilerString -> PackageString -> Maybe Key
+-- parseKey arch hc s = do
+--   (major, minor) <- parseCompilerString hc
+--   (pkg  , ver  ) <- parsePackageString s
+--   return $ Key pkg ver arch major minor

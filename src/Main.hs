@@ -19,8 +19,6 @@ import Options.Applicative.Help.Pretty
 
 import System.Console.Pretty
   ( supportsPretty )
-import System.IO
-  ( hPutStr, hPutStrLn, stderr )
 
 import License
   ( copyright, license )
@@ -178,15 +176,3 @@ options = do
       , "(E.g., there could be symlinks to executables stored there.)"
       ]
     ]
-
--- * Verbosity functionality.
-
-chat :: Options -> String -> IO ()
-chat = chatGen $ hPutStr stderr
-
-chatLn :: Options -> String -> IO ()
-chatLn = chatGen $ hPutStrLn stderr
-
-chatGen :: (String -> IO ()) -> Options -> String -> IO ()
-chatGen prt o msg = when (optVerbose o) $
-  prt $ styleOpt o Faint $ unwords ["info:", msg]

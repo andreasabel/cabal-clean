@@ -21,6 +21,7 @@ import System.Directory       as X (doesDirectoryExist, listDirectory, removeDir
 import System.Exit            as X (die, ExitCode(..))
 import System.FilePath        as X ((</>))
 import System.Process         as X (readProcessWithExitCode)
+import System.IO              as X (hPutStr, hPutStrLn, stderr)
 
 import Text.Read              as X (readMaybe)
 

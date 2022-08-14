@@ -5,7 +5,7 @@ import System.Console.Pretty  as X
   ( Color(Green, Red, White)
   , Style(ColoredNormal, Faint, Italic)
   )
-import System.FilePath (FilePath)
+import Util
 
 data Options = Options
   { optDelete     :: Bool
@@ -26,3 +26,15 @@ applyWhenColors :: Options -> (a -> b -> b) -> a -> b -> b
 applyWhenColors opts
   | optNoColors opts = \ _ _ -> id
   | otherwise        = id
+
+-- * Verbosity functionality.
+
+chat :: Options -> String -> IO ()
+chat = chatGen $ hPutStr stderr
+
+chatLn :: Options -> String -> IO ()
+chatLn = chatGen $ hPutStrLn stderr
+
+chatGen :: (String -> IO ()) -> Options -> String -> IO ()
+chatGen prt o msg = when (optVerbose o) $
+  prt $ styleOpt o Faint $ unwords ["info:", msg]

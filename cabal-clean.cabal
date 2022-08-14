@@ -50,6 +50,7 @@ executable cabal-clean
     License
     Options
     Structure
+    Types
     Util
     Version
     Paths_cabal_clean

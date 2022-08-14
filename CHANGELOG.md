@@ -1,3 +1,8 @@
+0.1.20220814
+------------
+
+Windows: Fix crash when `du` is not available.
+
 0.1.20210924
 ------------
 

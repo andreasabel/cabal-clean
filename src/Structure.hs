@@ -147,8 +147,7 @@ removeObsolete = foldMapEntry $ \ (Entry dir obsolete) -> do
 
 printBuildTree :: Options -> BuildTree -> IO ()
 printBuildTree opts = foldMapEntry $ \ (Entry dir obsolete) -> do
-  (exitcode, stdout, _stderr) <- readProcessWithExitCode "du" ["-hs", dir] ""
-  let s = if exitcode == ExitSuccess then stdout else dir ++ "\n"
+  s <- readProcess "du" ["-hs", dir] "" `catchIOError` \ _ -> pure (dir ++ "\n")
   putStr $ colorize obsolete s
   where
   colorize True  = colorOpt opts Red   . ("---\t" ++)

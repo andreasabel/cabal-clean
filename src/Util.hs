@@ -20,8 +20,9 @@ import Data.Version           as X (Version(..))
 import System.Directory       as X (doesDirectoryExist, listDirectory, removeDirectoryRecursive)
 import System.Exit            as X (die, ExitCode(..))
 import System.FilePath        as X ((</>))
-import System.Process         as X (readProcessWithExitCode)
+import System.Process         as X (readProcess)
 import System.IO              as X (hPutStr, hPutStrLn, stderr)
+import System.IO.Error        as X (catchIOError)
 
 import Text.Read              as X (readMaybe)
 

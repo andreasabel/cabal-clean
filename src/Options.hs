@@ -35,6 +35,9 @@ chat = chatGen $ hPutStr stderr
 chatLn :: Options -> String -> IO ()
 chatLn = chatGen $ hPutStrLn stderr
 
+chatLines :: Options -> [String] -> IO ()
+chatLines = mapM_ . chatGen (hPutStrLn stderr)
+
 chatGen :: (String -> IO ()) -> Options -> String -> IO ()
 chatGen prt o msg = when (optVerbose o) $
   prt $ styleOpt o Faint $ unwords ["info:", msg]

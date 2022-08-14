@@ -114,14 +114,14 @@ getSubdirectories root = liftIO $ do
 -- | Mark entries that are superseded by either a new package version
 -- or a new compiler minor version.
 
-markObsolete :: BuildTree -> BuildTree
-markObsolete =
+markObsolete :: (CompilerVersion -> Bool) -> BuildTree -> BuildTree
+markObsolete keep =
   -- for each Package, from highest to lowest PackageVersion:
   modifyBuildTree $ fmap $ modifyDesc $ modifyCons
     -- keep the highest PackageVersion, but iterate through GHC MinorVersion
-    (second $ fmap $ fmap $ modifyDesc $ modifyCons
-      -- keep the highest MinorVersion
-      id
+    (second $ fmap $ Map.mapWithKey $ \ major -> modifyDesc $ modifyCons
+      -- keep the highest MinorVersion if permitted by predicate @keep@
+      (\ (minor, entry) -> (minor, setEntryObsolete (not $ keep (major, minor)) entry))
       -- mark lower MinorVersion as obsolete
       (map $ second markEntryObsolete))
     -- mark lower PackageVersion as obsolete
@@ -132,7 +132,10 @@ markObsolete =
   -- mapDesc f = Map.fromDescList . map (second f) . Map.toDescList
 
 markEntryObsolete :: Entry -> Entry
-markEntryObsolete (Entry dir _) = Entry dir True
+markEntryObsolete = setEntryObsolete True
+
+setEntryObsolete :: Bool -> Entry -> Entry
+setEntryObsolete obsolete (Entry dir _) = Entry dir obsolete
 
 -- | Remove directories marked as obsolete.
 

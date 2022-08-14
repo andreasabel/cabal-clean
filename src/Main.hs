@@ -20,12 +20,15 @@ import Options.Applicative.Help.Pretty
 import System.Console.Pretty
   ( supportsPretty )
 
+import Util
+
+import DiscoverGHCs
+  ( discoverGHCs )
 import License
   ( copyright, license )
 import Options
 import Structure
   ( Entry(..), foldMapEntry, getBuildTree, markObsolete, printBuildTree )
-import Util
 import Version
 
 self :: String
@@ -46,6 +49,9 @@ main = do
   -- print opts
   let buildDir = optRoot </> "build"
 
+  -- Discover installed GHCs.
+  ghcs <- discoverGHCs opts
+
   -- Get build tree.
 
   chatLn opts $ unwords [ "Reading", buildDir, "..." ]
@@ -55,17 +61,21 @@ main = do
   (tree0, warns) <- getBuildTree buildDir
   forM_ warns $ putStrLn . ("warning: " ++)
 
-  let tree = markObsolete tree0
+  -- Mark superseded builds as obsolete.
+  -- If no installed GHCs could be found, assume a misconfiguration and
+  -- do not use installed GHCs as criterion.
+  let keep = if null ghcs then const True else hasElem ghcs
+  let tree = markObsolete keep tree0
   printBuildTree opts tree
 
-  -- Count obsolete directories
+  -- Count obsolete directories.
   let nObs :: Integer
       nObs = getSum $ foldMapEntry ((\ x -> if x then Sum 1 else Sum 0) . obsolete) tree
 
   if nObs <= 0 then putStrLn ("Nothing to clean!")
   else if not optDelete then putStrLn $ unwords
     [ show nObs, "directories can be removed (supply option --remove)." ]
-  -- Remove obsolete directories
+  -- Remove obsolete directories.
   else do
     putStrLn $ unwords [ "Removing", show nObs, "obsolete directories..." ]
     flip foldMapEntry tree $ \ (Entry dir obsolete) -> do
@@ -161,18 +171,20 @@ options = do
       , show defaultRoot
       , ")."
       ]
-    , unwords
-      [ "A package build is considered superseded if there is a local build"
-      , "of either a newer version of the package or with a newer minor version"
-      , "of the Haskell compiler."
-      ]
+    , ""
+    , "A package build is considered superseded if one of the following conditions is met:"
+    , "- It was build with a Haskell compiler that cannot be found on the system PATH."
+    , "- There is a build of a newer version of the package."
+    , "- There is a build with a newer minor version of the Haskell compiler."
+    , ""
+    , "Limitation: Only GHC is recognized as Haskell compiler, and only in the form 'ghc-VERSION' (not just 'ghc')."
     ]
   footer = Just $ vcat $ map (text . unwords)
     [ [ unwords ["Without option --delete,", self, "does not actually clean out anything,"]
       , "just shows prefixed with '---' and in red what would be removed and prefixed with '+++' and in green what is kept."
       ]
     , [ "" ]
-    , [ "Warning: there is check whether the to-be-deleted contents are actually garbage."
+    , [ "Warning: there is no check whether the to-be-deleted contents are actually garbage."
       , "(E.g., there could be symlinks to executables stored there.)"
       ]
     ]

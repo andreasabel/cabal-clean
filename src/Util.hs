@@ -10,7 +10,7 @@ import Control.Monad.Writer   as X (WriterT, runWriterT, tell)
 import Data.Bifunctor         as X
 import Data.Char              as X (isSpace)
 import Data.Function          as X (on)
-import Data.List              as X (findIndex, findIndices, intercalate)
+import Data.List              as X (findIndex, findIndices, intercalate, sort)
 import Data.List.Split        as X (splitWhen)
 import Data.Maybe             as X
 import Data.Map               as X (Map)
@@ -25,6 +25,8 @@ import System.IO              as X (hPutStr, hPutStrLn, stderr)
 import System.IO.Error        as X (catchIOError)
 
 import Text.Read              as X (readMaybe)
+
+import qualified Data.Set     as Set
 
 (<&>) :: Functor f => f a -> (a -> b) -> f b
 (<&>) = flip (<$>)
@@ -54,3 +56,10 @@ modifyCons f g = \case
 -- UNUSED
 modifyTail :: ([a] -> [a]) -> [a] -> [a]
 modifyTail = modifyCons id
+
+-- | Like 'Data.List.elem', but turns list into a 'Set', to speed up subsequent lookups.
+--
+-- Use partially applied, e.g. @hasElem xs :: a -> Bool@.
+{-# INLINE hasElem #-}
+hasElem :: Ord a => [a] -> a -> Bool
+hasElem xs = (`Set.member` Set.fromList xs)

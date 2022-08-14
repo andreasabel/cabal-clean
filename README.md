@@ -28,10 +28,11 @@ This lists the build artifacts under `dist-newstyle/build`.
 ---	162M	dist-newstyle/build/x86_64-osx/ghc-9.0.1/$MY_PROJECT-2.9.2
 +++	135M	dist-newstyle/build/x86_64-osx/ghc-7.10.3/$MY_PROJECT-2.9.3
 ---	 70M	dist-newstyle/build/x86_64-osx/ghc-8.10.4/$MY_PROJECT-2.9.3
-+++	145M	dist-newstyle/build/x86_64-osx/ghc-8.10.5/$MY_PROJECT-2.9.3
-+++	159M	dist-newstyle/build/x86_64-osx/ghc-9.0.1/$MY_PROJECT-2.9.3
++++	145M	dist-newstyle/build/x86_64-osx/ghc-8.10.7/$MY_PROJECT-2.9.3
+---	159M	dist-newstyle/build/x86_64-osx/ghc-9.0.1/$MY_PROJECT-2.9.3
 ```
-The superseded ones, printed in red and prefixed by dashes (`---`),
+The superseded ones (assuming `ghc-9.0.1` is not on the `PATH`),
+printed in red and prefixed by dashes (`---`),
 can then be removed by:
 
     cabal-clean --delete
@@ -61,6 +62,9 @@ Philosophy
 - Keep only the most recent `$VERSION` of the package.
 
 - Keep only the most recent major versions of `$HC`.
+
+- Keep only versions build with a `$HC` which is still on the PATH
+  (since version 0.2).
 
 - Assume a monopoly of GHC, ignoring other Haskell compilers, so only
   treat `$HC`s of the form `ghc-$GHCVER`.

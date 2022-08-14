@@ -46,3 +46,9 @@ type VersionString = String
 
 parseVersionString :: VersionString -> Maybe NumericVersion
 parseVersionString = mapM readMaybe . splitWhen (== '.')
+
+printNumericVersion :: NumericVersion -> VersionString
+printNumericVersion = intercalate "." . map show
+
+toNumericVersion :: CompilerVersion -> NumericVersion
+toNumericVersion = uncurry (++)

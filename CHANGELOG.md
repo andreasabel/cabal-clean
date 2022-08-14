@@ -1,3 +1,8 @@
+0.2.20220819
+------------
+
+Also remove builds with GHCs which are no longer on the PATH.
+
 0.1.20220814
 ------------
 

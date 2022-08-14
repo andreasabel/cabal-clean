@@ -1,7 +1,7 @@
 cabal-version:       >=1.10
 
 name:                cabal-clean
-version:             0.1.20220814
+version:             0.2.20220819
 synopsis:            Remove outdated cabal build artefacts from `dist-newstyle`.
 
 description:         Simple command line tool to remove cabal build artefacts
@@ -15,7 +15,7 @@ license-file:        LICENSE
 
 author:              Andreas Abel
 maintainer:          Andreas Abel <andreas.abel@cse.gu.se>
-copyright:           Andreas Abel, 2021
+copyright:           Andreas Abel, 2021, 2022
 category:            Development
 
 build-type:          Simple
@@ -42,6 +42,7 @@ executable cabal-clean
   main-is:             Main.hs
 
   other-modules:
+    DiscoverGHCs
     License
     Options
     Structure
@@ -56,6 +57,7 @@ executable cabal-clean
     , containers >= 0.5.8
     , directory
     -- , directory >= 1.2.6.2 && < 1.4
+    , filemanip >= 0.3.6.3
     , filepath
     -- , filepath == 1.4.*
     , mtl
@@ -64,6 +66,7 @@ executable cabal-clean
     -- pretty-terminal-0.1.0.0 has base >= 4.9
     , pretty-terminal
     , process
+    , silently >= 1.2.5.2
     , split
     , string-qq
 

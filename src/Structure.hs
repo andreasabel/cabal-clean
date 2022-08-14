@@ -133,16 +133,19 @@ getSubdirectories root = liftIO $ do
 -- or a new compiler minor version.
 
 markObsolete :: BuildTree -> BuildTree
-markObsolete (BuildTree t) = BuildTree $
-  flip fmap t $ modifyDesc $ \case
-    [] -> []
-    (ver, m) : vms ->
-      (ver, flip (fmap . fmap) m $ modifyDesc $ \case
-        [] -> []
-        me : mes -> me : map (second markEntryObsolete) mes
-      ) : map (second $ fmap $ fmap $ fmap markEntryObsolete) vms
-
+markObsolete =
+  -- for each Package, from highest to lowest PackageVersion:
+  modifyBuildTree $ fmap $ modifyDesc $ modifyCons
+    -- keep the highest PackageVersion, but iterate through GHC MinorVersion
+    (second $ fmap $ fmap $ modifyDesc $ modifyCons
+      -- keep the highest MinorVersion
+      id
+      -- mark lower MinorVersion as obsolete
+      (map $ second markEntryObsolete))
+    -- mark lower PackageVersion as obsolete
+    (map $ second $ fmap $ fmap $ fmap markEntryObsolete)
   where
+  modifyBuildTree f (BuildTree t) = BuildTree (f t)
   modifyDesc f = Map.fromDescList . f . Map.toDescList
   -- mapDesc f = Map.fromDescList . map (second f) . Map.toDescList
 
@@ -207,6 +210,7 @@ foldMapEntry f (BuildTree t) = (foldMap . foldMap . foldMap . foldMap . foldMap)
 
 -- * Parsing directory names
 
+-- UNUSED
 parseKey :: Arch -> CompilerString -> PackageString -> Maybe Key
 parseKey arch hc s = do
   (major, minor) <- parseCompilerString hc

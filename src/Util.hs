@@ -43,3 +43,12 @@ lastMaybe (a:as) = Just $ last1 a as
 last1 :: a -> [a] -> a
 last1 a []     = a
 last1 _ (a:as) = last1 a as
+
+modifyCons :: (a -> a) -> ([a] -> [a]) -> [a] -> [a]
+modifyCons f g = \case
+  []   -> []
+  x:xs -> f x : g xs
+
+-- UNUSED
+modifyTail :: ([a] -> [a]) -> [a] -> [a]
+modifyTail = modifyCons id

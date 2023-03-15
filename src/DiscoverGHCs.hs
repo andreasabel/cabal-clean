@@ -3,7 +3,7 @@
 module DiscoverGHCs where
 
 import Control.Exception
-  ( evaluate )  
+  ( evaluate )
 import System.FilePath
   ( getSearchPath, stripExtension, takeFileName )
 import System.FilePath.Find

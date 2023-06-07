@@ -15,7 +15,7 @@ import Options.Applicative
   , info, infoOption, long, metavar, short, strArgument, switch, value
   )
 import Options.Applicative.Help.Pretty
-  ( vcat, text )
+  ( vcat, pretty )
 
 import System.Console.Pretty
   ( supportsPretty )
@@ -163,7 +163,7 @@ options = do
       <> help (concat ["The root of the build tree. Default: ", show defaultRoot, "."])
 
   -- Note: @header@ does not respect line breaks, so we need @headerDoc@.
-  header = Just $ vcat $ map text
+  header = Just $ vcat $ map pretty
     [ unwords [ versionText, homepage ]
     , ""
     , concat
@@ -179,7 +179,7 @@ options = do
     , ""
     , "Limitation: Only GHC is recognized as Haskell compiler, and only in the form 'ghc-VERSION' (not just 'ghc')."
     ]
-  footer = Just $ vcat $ map (text . unwords)
+  footer = Just $ vcat $ map (pretty . unwords)
     [ [ unwords ["Without option --delete,", self, "does not actually clean out anything,"]
       , "just shows prefixed with '---' and in red what would be removed and prefixed with '+++' and in green what is kept."
       ]

@@ -1,3 +1,9 @@
+0.2.20230609
+------------
+
+Build with `optparse-applicative-0.18`:
+PR [#4](https://github.com/andreasabel/cabal-clean/pull/4) by Sanchayan Maity.
+
 0.2.20220819
 ------------
 

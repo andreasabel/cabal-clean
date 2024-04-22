@@ -1,4 +1,4 @@
-branches: master ci*
+branches: master
 
 installed: +all -binary -containers
 

@@ -24,8 +24,10 @@ extra-source-files:  CHANGELOG.md
                      README.md
 
 tested-with:
-  GHC == 9.6.2
-  GHC == 9.4.5
+  GHC == 9.10.0
+  GHC == 9.8.2
+  GHC == 9.6.4
+  GHC == 9.4.8
   GHC == 9.2.8
   GHC == 9.0.2
   GHC == 8.10.7
@@ -60,7 +62,6 @@ executable cabal-clean
     -- , directory >= 1.2.6.2 && < 1.4
     , filemanip >= 0.3.6.3
     , filepath
-    -- , filepath == 1.4.*
     , mtl
     -- missing Semigroup instances with optparse-applicative-0.12
     , optparse-applicative >= 0.13

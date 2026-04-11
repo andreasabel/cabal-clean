@@ -85,3 +85,8 @@ executable cabal-clean
   ghc-options:
     -Wall
     -Wcompat
+
+  if impl(ghc >= 9.0)
+    ghc-options:
+      -Werror=incomplete-patterns
+      -Werror=incomplete-uni-patterns

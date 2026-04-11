@@ -39,8 +39,9 @@ type PackageString = String
 parsePackageString :: PackageString -> Maybe (Package, PackageVersion)
 parsePackageString s = do
   n <- findIndexEnd (== '-') s
-  let (p, _:v) = splitAt n s
-  (p,) <$> parseVersionString v
+  case splitAt n s of
+    (p, _:v) -> (p,) <$> parseVersionString v
+    _ -> Nothing
 
 type VersionString = String
 
